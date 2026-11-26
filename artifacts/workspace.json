@@ -1,0 +1,17 @@
+{
+  "root": "/home/dev/feedback/uid38812",
+  "B": "/home/dev/feedback/uid38812",
+  "sha": "af12ff7931d0c6cedffbe771b506b2cd493442ea",
+  "wslDistro": "Ubuntu-26.04",
+  "source": {
+    "owner": "FRRouting",
+    "repo": "frr",
+    "sha": "af12ff7931d0c6cedffbe771b506b2cd493442ea"
+  },
+  "fork": {
+    "owner": "Rrr119",
+    "repo": "frr",
+    "cloneUrl": "https://github.com/Rrr119/frr.git"
+  },
+  "at": "2026-11-26T02:52:20.490Z"
+}

@@ -12624,6 +12624,13 @@ static void route_vty_short_status_out(struct vty *vty,
 		else if (rpki_state == RPKI_NOTFOUND)
 			json_object_boolean_true_add(json_path, "rpkiNotFound");
 
+		/* Expose the route tag so policy that marks routes based on
+		 * the RPKI validation state (match rpki ... / set tag ...) is
+		 * observable in the short JSON output as well.
+		 */
+		if (path->attr && path->attr->tag != 0)
+			json_object_int_add(json_path, "tag", path->attr->tag);
+
 		/* Route status display. */
 		if (CHECK_FLAG(path->flags, BGP_PATH_REMOVED))
 			json_object_boolean_true_add(json_path, "removed");

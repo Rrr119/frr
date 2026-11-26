@@ -195,6 +195,64 @@ Validating BGP Updates
         match rpki valid
         set local-preference 500
 
+    Separate tags for invalid and unknown (not-found) prefixes are assigned
+    with the ordinary ``set tag`` syntax. A permit-all marking map makes all
+    three validation states visible and usable to other policy:
+
+    .. code-block:: frr
+
+       route-map RPKI-TAG permit 10
+        match rpki valid
+        set tag 100
+       !
+       route-map RPKI-TAG permit 20
+        match rpki notfound
+        set tag 201
+       !
+       route-map RPKI-TAG permit 30
+        match rpki invalid
+        set tag 202
+       !
+       route-map RPKI-TAG permit 40
+
+    The marking map is applied like any other inbound route map:
+
+    .. code-block:: frr
+
+       router bgp 65001
+        address-family ipv4 unicast
+         neighbor 192.0.2.1 route-map RPKI-TAG in
+
+    Invalid prefixes are then discarded directly by validation state. A denied
+    prefix is not installed, so filtering is expressed with its own map rather
+    than by matching the tag that the marking map would have set:
+
+    .. code-block:: frr
+
+       route-map RPKI-IN deny 10
+        match rpki invalid
+       !
+       route-map RPKI-IN permit 20
+        match rpki notfound
+        set tag 201
+       !
+       route-map RPKI-IN permit 30
+        match rpki valid
+        set tag 100
+       !
+       route-map RPKI-IN permit 40
+
+    Tags set by the marking/filtering map stay on the path and can be matched
+    later (for example on an outbound map, a ``table-map`` or redistribution)
+    with a normal ``match tag 202`` clause.
+
+    The assigned tag is displayed in the BGP table text output and as the
+    per-path ``tag`` member of the ``show bgp ipv4 unicast json`` output.
+
+    Adding, removing or modifying an ``rpki`` match clause re-applies the
+    inbound policy through BGP route refresh / soft reconfiguration, so
+    existing BGP sessions are not torn down.
+
 .. clicmd:: match rpki-extcommunity notfound|invalid|valid
 
    Create a clause for a route map to match prefixes with the specified RPKI
